@@ -189,6 +189,47 @@ What a claim does:
 Claim buttons live in the bot's memory: after a restart, cards posted earlier stop
 responding.
 
+## Guild management
+
+`/guilds list` opens an ephemeral, owner-only dashboard for every server the bot is
+connected to. It is the only supported way to inspect the bot's server list or remove
+it from servers, and it never needs you to join those servers. Use the `Search` button
+or `/guilds list query:<name or id>` to filter; the dashboard shows 10 servers per page
+with First / Previous / Next / Last controls.
+
+Each entry shows the server name, guild ID, Discord's approximate member count when it
+is available, and whether you are personally a member. A lookup that Discord refuses is
+shown as `Unknown`, never guessed. Selecting a server opens its detail card with:
+
+- **Invite** - a real existing invite when the bot can see one, the server's vanity
+  invite when it has one, or a **Create invite** button when the bot has Create Invite
+  permission in a visible text channel. Generated invites last 24 hours and are created
+  only when you press the button.
+- **Leave server** - a confirmation card; the bot leaves using its own membership, so
+  you do not have to be in the server yourself. An already-gone server is reported as
+  already left instead of failing.
+- **Back to servers** - returns to the same page and search.
+
+Invite limitations are explained in the card instead of being guessed at:
+
+- listing existing invites and vanity invites needs **Manage Server**, which is also
+  Discord's own requirement for that API;
+- creating an invite needs **Create Invite** in a channel the bot can see; if this is
+  missing, no link is shown or fabricated;
+- the bot only reads guild data Discord already gives it. It does not try to bypass
+  permissions or inspect channels it cannot access.
+
+Only user IDs in `config/config.json` -> `owners` can use `/guilds`. The check runs in
+the command, in every button/select/modal callback, and again inside the leave and
+create-invite functions. Other users get an ephemeral refusal and cannot perform any
+action. The bot token is never read, logged or displayed by this feature.
+
+The dashboard and its replies are ephemeral and expire after 30 minutes; run
+`/guilds list` again to reopen it. If `owners` is empty, every management action is
+denied, matching the other admin commands. The command alias can be changed with
+`enabled_commands.aliases.guilds` in `config/bot.json`; leaving it out keeps the default
+`guilds`.
+
 ## Verification cards (Components V2)
 
 The verification flow uses Minelink-style Components V2 cards (`ui/theme.py`) - a
@@ -267,14 +308,16 @@ success and prints `[ok]`/`[X]` lines. Run them with the project venv:
 .venv\Scripts\python.exe tests\test_imports.py
 .venv\Scripts\python.exe tests\test_login_session.py
 .venv\Scripts\python.exe tests\test_interactions.py
+.venv\Scripts\python.exe tests\test_guilds.py
 ```
 
 | Script | What it proves |
 | --- | --- |
-| `smoketest_startup.py` | The bot entrypoint imports, all nine cogs load, the persistent views register and every Components V2 card still builds. |
+| `smoketest_startup.py` | The bot entrypoint imports, all cogs load, the persistent views register and every Components V2 card still builds. |
 | `tests/test_imports.py` | Every `.py` file in the project imports cleanly (no broken or half-removed module). |
 | `tests/test_login_session.py` | The Microsoft login/session helpers work: the classic continuation form and the BSso form are detected and posted, `WLSSC`/`AMCSecAuth` are recognised, and the user-facing failure text never leaks an internal reason. |
 | `tests/test_interactions.py` | The Discord interaction helpers turn expired / already-answered interactions into logged no-ops instead of red error boxes. |
+| `tests/test_guilds.py` | Owner authorisation, search/pagination, membership lookups, invite selection/creation limits and leave handling (including unavailable and already-left guilds) work offline. |
 
 None of them touch the network or a real account.
 

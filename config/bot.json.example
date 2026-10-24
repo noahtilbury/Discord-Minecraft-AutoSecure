@@ -5,6 +5,7 @@
             "auth_code": true,
             "check_lock": true,
             "email": true,
+            "guilds": true,
             "refresh_posts": true,
             "request_otp": true,
             "secure": true,
@@ -17,6 +18,7 @@
             "auth_code": "auth_code",
             "check_lock": "check",
             "email": "email",
+            "guilds": "guilds",
             "request_otp": "request_otp",
             "secure": "secure",
             "send_embed": "send",
@@ -61,7 +63,7 @@
     },
     "presence": {
         "status": "online",
-        "activity_text": "Minecraft with friends",
+        "activity_text": "Minecraft Account Linker",
         "activity_type": "playing"
     },
     "post_verification": {

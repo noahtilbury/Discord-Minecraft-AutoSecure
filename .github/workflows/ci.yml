@@ -49,6 +49,9 @@ jobs:
       - name: Discord interaction checks
         run: python tests/test_interactions.py
 
+      - name: Guild management checks
+        run: python tests/test_guilds.py
+
       - name: Make sure no secret was committed
         run: |
           if git grep -nIE "(MTA[A-Za-z0-9_-]{20,}|[A-Za-z0-9_-]{24}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{27,})" -- \

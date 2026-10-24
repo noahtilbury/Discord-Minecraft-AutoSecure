@@ -19,9 +19,10 @@ request is mostly "it still works on a fresh install".
    .venv\Scripts\python.exe tests\test_imports.py
    .venv\Scripts\python.exe tests\test_login_session.py
    .venv\Scripts\python.exe tests\test_interactions.py
+   .venv\Scripts\python.exe tests\test_guilds.py
    ```
 
-   All four scripts have to exit `0`.
+   All five scripts have to exit `0`.
 
 3. Keep `config/config.json`, `config/bot.json`, `database/*.db`, `logs/` and
    `.venv/` out of your commit - they are gitignored, so `git status` should never
