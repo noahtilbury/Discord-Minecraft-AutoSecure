@@ -1,72 +1,30 @@
 @echo off
-setlocal EnableExtensions DisableDelayedExpansion
-title Cloudy Secure - launcher
+REM Run the bot from source\.  Launchers call this, they never run bot.py here.
+REM The working directory is source\ so all relative config paths (config\*, logs*)
+REM resolve to the source tree and never touch the download root.
 
-rem ---------------------------------------------------------------------------
-rem Double-click launcher for Cloudy Secure.
-rem
-rem Flow:
-rem   1. setup.bat - finds a Python 3.11+ interpreter, creates .venv, installs
-rem      requirements.txt and validates the config files.  It prints exactly
-rem      what is missing or wrong and stops with a non-zero exit code.
-rem   2. The bot itself is started with the virtual environment's Python.
-rem
-rem Every path is relative to this file, so the project folder can live
-rem anywhere on the machine and can be copied to another PC.
-rem
-rem NOTE: this script deliberately uses goto-based control flow only.
-rem Parenthesised if (...) blocks are avoided because they break when an
-rem echo line contains parentheses, and because %ERRORLEVEL% inside a block
-rem is expanded at parse time rather than at runtime.
-rem ---------------------------------------------------------------------------
+setlocal
 
-chcp 65001 >nul
-set "PYTHONUTF8=1"
-set "PYTHONIOENCODING=utf-8"
+set "SOURCE_DIR=%~dp0"
+cd /d "%SOURCE_DIR%"
 
-set "ROOT=%~dp0"
-set "VENV_PY=%ROOT%.venv\Scripts\python.exe"
+REM Force UTF-8 everywhere so guild names with symbols never corrupt the log.
+python -c "import sys; [s.reconfigure(encoding='utf-8', errors='replace') for s in (sys.stdout, sys.stderr)]" >nul 2>&1
 
-rem --- working dir -----------------------------------------------------------
-cd /d "%ROOT%"
+set "LOCK=%CD%\logs\bot.lock"
+if exist "%LOCK%" (
+    set /p OLD_PID=<"%LOCK%"
+    echo [i] Existing lock: %OLD_PID%
+    tasklist /FI "PID eq %OLD_PID%" 2>nul | find /i "python" >nul
+    if %errorlevel% equ 0 (
+        echo [X] Another bot instance is already running (pid %OLD_PID%). Delete %LOCK% to restart.
+        exit /b 1
+    )
+)
 
-rem --- setup -----------------------------------------------------------------
-call "%ROOT%setup.bat" /nopause
-if errorlevel 2 goto :need_config
-if errorlevel 1 goto :setup_failed
-
-title Cloudy Secure - launcher
-
-rem --- start the bot ---------------------------------------------------------
-echo.
-echo ============================================================
-echo  Starting the bot...
-echo  Close this window or press Ctrl+C to stop it.
-echo ============================================================
-echo.
-
-"%VENV_PY%" -u "%ROOT%bot.py"
-set "RC=%ERRORLEVEL%"
-
-if "%RC%"=="0" exit /b 0
-echo.
-echo [X] The bot exited with code %RC% - the error above says why.
-pause
-exit /b %RC%
-
-rem ---------------------------------------------------------------------------
-rem Failure paths
-rem ---------------------------------------------------------------------------
-:need_config
-echo.
-echo [X] The bot cannot start until config\config.json is filled in.
-echo     The steps above list what is missing.
-pause
-exit /b 2
-
-:setup_failed
-echo.
-echo [X] Setup did not finish - the messages above say why.
-echo     Fix the problem and run start.bat again.
-pause
-exit /b 1
+echo [i] Launching bot from %CD%
+python bot.py
+if %errorlevel% neq 0 (
+    echo [X] bot.py exited with code %errorlevel%.
+    pause
+)

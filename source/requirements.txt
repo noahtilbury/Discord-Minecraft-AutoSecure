@@ -1,0 +1,11 @@
+# 2.7+ ships the Components-V2 API the cards are built on
+# (discord.ui.Container / Section / TextDisplay / DesignerView / DesignerModal).
+# 2.6 and older have none of it, so the bot would crash on import there.
+py-cord>=2.7,<3
+httpx>=0.27
+httpcore>=1.0
+requests>=2.31
+cloudscraper>=1.2.71
+fake-useragent>=2.0
+python-dateutil>=2.9
+audioop-lts>=0.2; python_version >= "3.13"

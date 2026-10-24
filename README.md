@@ -417,31 +417,19 @@ This project handles account verification and security mail. Treat `config/`, th
 database and `logs/` as sensitive, and never commit or share real tokens, webhook URLs,
 mailbox credentials or the secured-account data.
 
-## Project layout
 
-```
+```text
 Cloudy Secure/
-  bot.py                    # bot entrypoint
-  start.bat                 # Windows launcher (venv + deps + run)
-  setup.bat                 # standalone setup (python check + venv + deps + config)
+  start.bat                 # launcher (boots the bot from source\)
+  setup.bat                 # full setup on its own
   setup_check.py            # pre-flight config check
-  update_from_github.bat    # updater (pull + deps + migrations)
-  ecosystem.config.cjs      # pm2 process config
-  requirements.txt          # Python deps
-  config/
-    config.json(.example)   # tokens, owners, mail, proxy, claims, autosecure
-    bot.json(.example)      # commands, embeds, presence, refresh posts
-  cogs/                     # slash command modules
-  securing/                 # verification / security automation
-  mail/                     # mail.tm polling and provisioning
-  ui/                       # views, modals, Components V2 cards
-  shared/                   # shared helpers (interactions, settings, logs)
-  tests/                    # dependency-free checks (imports, session, interactions)
-  database/database.py      # SQLite persistence
-  minecraft/                # profile / ban / name lookups
-  assets/                   # card images
-  logs/                     # runtime logs + bot.lock (created at runtime)
-  .venv/                    # Python environment (created by start.bat)
+  update_github.bat         # pulls updates, keeps config/ and database/
+  readme.md                 # this document
+  source\                   # every single bot part.  The bot runs from here
+  config\                   # config.json, bot.json, defaults.json (created)
+  database\                 # SQLite files (kept across updates)
+  logs\                     # bot.log, securing.log (kept across updates)
+  .venv\                    # Python environment (inside source\)
   .github/workflows/ci.yml  # the checks above, run on every push
 ```
 

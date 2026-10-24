@@ -355,3 +355,11 @@ keys.txt
 *_keys.txt
 *private_key*.txt
 *_key.txt
+_bridge.html
+_probe1.py
+_probe2.py
+_probe3.py
+_probe4.py
+_ref_embed.png
+.venv/
+ui/notifications/secondary_notice_channel.txt
